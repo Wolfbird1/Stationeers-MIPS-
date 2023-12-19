@@ -1,0 +1,37 @@
+#----- Tri et stockage des Gaz par filtreur avec alarm ! -----
+alias Filter db
+defined bAlarm -126038526
+definef bGiro -2107840748
+Start:
+ls r0 Filter 0 Quantity
+ls r1 Filter 1 Quantity
+l r3 Filter PressureOutput
+l r4 Filter RatioOxygenInput
+add r0 r0 r1
+blt r0 0.1 Alarm1
+bgt r3 1000 StopFilter
+blt r4 0.1 StopFilter
+StartFilter
+j Start
+
+#--- Fonctions -------------------
+StartFilter:
+s Filter Mode 1
+j ra
+StopFilter:
+s Filter Mode 0
+j Start
+Alarm1:
+sb bGiro On 1
+sb bAlarm Mode 45
+sb bAlarm Volume 100
+sb bAlarm On 1
+ra
+
+#RatioOxygenInput
+#RatioCarbonDioxideInput
+#RatioNitrogenInput
+#RatioPollutantInput
+#RatioVolatilesInput
+#RatioWaterInput
+#RatioNitrousOxideInput
