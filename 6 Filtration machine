@@ -1,0 +1,86 @@
+# Filtrer tous 6 Filtration machine
+alias FilterCO2 d0
+alias FilterX d1
+alias FilterH2 d2
+alias FilterN2 d3
+alias FilterO2 d4
+alias FilterN2O d5 
+defined bPipeSensor -767597887
+defined bAspir -842048328
+
+Start:
+lb r0 bPipeSensor RatioCarbonDioxide
+lb r1 bPipeSensor RatioPollutant
+lb r2 bPipeSensor RatioVolatiles
+lb r3 bPipeSensor RatioNitrogen
+lb r4 bPipeSensor RatioOxigen
+lb r5 bPipeSensor RatioNitrousOxide
+lb r6 bPipeSensor Pressure
+beqz r6 StartAspir
+bgt r6 100 StopAspir 
+Filter:
+bgtzal r0 StartFilterCO2
+bgtzal r1 StartFilterX
+bgtzal r2 StartFilterH2
+bgtzal r3 StartFilterN2
+bgtzal r4 StartFilterO2
+bgtzal r5 StartFilterNO2
+beqzal r0 StopFilterCO2
+beqzal r1 StopFilterX
+beqzal r2 StopFilterH2
+beqzal r3 StopFilterN2
+beqzal r4 StopFilterO2
+beqzal r5 StopFilterNO2
+j Start
+
+#----- Fonction ON -----
+StartFilterCO2:
+s FilterCO2 On 1
+s FilterCO2 Mode 1
+j ra
+StartFilterX:
+s FilterX On 1
+s FilterX Mode 1
+j ra
+StartFilterH2:
+s FilterH2 On 1
+s FilterH2 Mode 1
+j ra
+StartFilterN2:
+s FilterN2 On 1
+s FilterN2 Mode 1
+j ra
+StartFilterO2:
+s FilterO2 On 1
+s FilterO2 Mode 1
+j ra
+StartFilterNO2:
+s FilterNO2 On 1
+s FilterNO2 Mode 1
+j ra
+#----- Fonction OFF -----
+StopFilterCO2:
+s FilterCO2 On 0
+j ra
+StopFilterX:
+s FilterX On 0
+j ra
+StopFilterH2:
+s FilterH2 On 0
+j ra
+StopFilterN2:
+s FilterN2 On 0
+j ra
+StopFilterO2:
+s FilterO2 On 0
+j ra
+StopFilterNO2:
+s FilterNO2 On 0
+j ra
+StartAspir:
+sb bAspir On 1
+j Filter
+StopAspir:
+sb bAspir On 0
+j Filter
+
