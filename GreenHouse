@@ -1,0 +1,78 @@
+# Maintenir l'atmos cultirespirable en comcinaison avec une Clim
+alias Sensor d0
+alias AirCo d1
+alias PumpCO d2
+alias PumpN d3
+alias Filter d4
+alias PumpAir d5
+defined bPorte -324331872
+defined bPipeHeater -419758574
+defined bPipeAnalyser -767597887
+defined Lamp 1514476632
+#defined Presence -1713470563
+Start:
+yield
+sb bPorte Open 0
+l r0 Sensor Temperature
+l r1 Sensor RatioPollutant
+l r2 Sensor RatioNitrousOxide
+l r3 Sensor RatioVolatiles
+l r4 Sensor RatioOxygen
+l r5 Sensor RatioNitrogen
+l r6 Sensor Pressure
+#----- Eclairage ------
+##lb r8 Presence On
+##bgl r8 1 Alume
+LampOK:
+#----- Gestion clim exchanger -----
+l r7 bPipeAnalyser Temperature
+blt r4 278 Heating
+sb bPipeHeater On 0
+TempOk:
+# 273.15, 22>28
+bltal r0 295.15 StartAirCo
+bgtal r0 301.15 StartAirCo
+#--- Pression ~95kPa ---
+bltal r6 94 StartPumpAirIn
+bgtal r6 96 StartPumpAirOut
+beqal r6 95 StopPumpAir
+#-Filtration de All exept O2 et CO2
+add r15 r1 r2
+add r15 r15 r3
+bgtal r15 0.00 StartFilter
+#- CO2 fct O2 ------------------
+brgt r4 0.20 3
+s PumpCO On 0
+brlt r4 0.20 2
+s PumpCO On 1
+#- N -------------------
+brgt r5 0.04 3
+s PumpN On 1
+brlt r5 0.04 2
+s PumpN On 0
+j Start
+#--- Fonction -------------
+StartFilter:
+s Filter On 1
+s Filter Mode 1
+j ra
+StartAirCo:
+s Airco On 1
+s Airco Mode 1
+j ra
+StartPumpAirIn:
+s PumpAir Setting 1
+s PumpAir Mode 1 #A vérifeir sens
+s PimpAir On 1
+j ra
+StartPumpAirOut:
+s PumpAir Setting 1
+s PumpAir Mode 0 #A vérifeir sens
+s PimpAir On 1
+j ra
+Heating:
+sb bPipeHeater On 1
+j TempOk
+Alume:
+##sb Lamp On 1
+j LampOK 
