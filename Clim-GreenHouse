@@ -1,0 +1,33 @@
+# Maintenir la temprature ~25 +-3
+alias AirCo db
+alias Sensor d0
+alias Display d1
+Start:
+l r0 Sensor Temperature
+l r1 AirCo OperationalTemperatureEfficiency
+l r2 AirCo TemperatureDifferentialEfficiency
+#--- Affichage du Rocket Mode en VERT ---
+s Display Color 2
+s Display Setting r1
+yield
+yield
+#--- Affichage r3 minable en BLANC ---
+s Display Color 6
+s Display Setting r2
+yield
+yield
+#----- 273.15, 22>28 -----
+bltal r0 295.15 TooCold
+bgtal r0 301.15 TooHot
+s Airco Mode 0
+#----- Fonctions ----------------
+TooCold:
+s AirCo Setting 301.15
+s AirCo Mode 1
+bgt r0 299.15 ra
+j Start
+TooHot:
+s AirCo Setting 290.15
+s AirCo Mode 1
+blt r0 297.15 ra
+j Start
