@@ -22,16 +22,16 @@ s MaxiFrozen Mode 1
 j ra
 StartAlarmLowPressure:
 jal StopMaxi
-s Alarm Mode 40
-s Alarm Volume 100
-s Alarm On 1
+sb Alarm Mode 40
+sb Alarm Volume 100
+sb Alarm On 1
 j StopCrise
 StartAlarmhightPressure:
 jal StopMaxi
-s Alarm Mode 39
-s Alarm Volume 100
-s Alarm On 1
+sb Alarm Mode 39
+sb Alarm Volume 100
+sb Alarm On 1
 j StopCrise
 StopAlarm:
-s Alarm On 0
+sb Alarm On 0
 j ra
