@@ -1,0 +1,38 @@
+#----- SAS Protection -----
+alias Sensor d0
+alias Aspiration d1
+alias Pressurisation d2
+define Lamp 1514476632
+define AllSensor -1747737642
+define Door -324331872
+
+Start:
+s Pressurisation PressureExternal 95
+s Pressurisation Mode 0
+s Pressurisation On 1
+# j Start pour tester la Pressurisation
+move r0 0
+lb r0 AllSensor RatioPollutant 1
+lb r1 AllSensor RatioVolatiles 1
+lb r2 AllSensor RatioNitrousOxyde 1
+add r0 r0 r1
+add r0 r0 r2
+bgt r0 0.01 StartVerouillage
+j Start
+
+#----- Fonctions -----
+StartVerouillage:
+sb Lamp On 0
+sb Door Mode 0
+s Pressurisation On 0
+lb r0 Pressure
+bgtal r0 0 StartAspi
+beq r0 0 Start
+j StartVerouillage
+
+StartAspi:
+s Aspiration On 1
+yield
+yield
+sb Lamp On 1
+j ra
