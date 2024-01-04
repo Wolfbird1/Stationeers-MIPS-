@@ -1,37 +1,49 @@
 #----- GigaFrostFactoty -----
 alias MaxiFrozen db
 define Alarm -828056979
+
 Start:
 # Kelvin 273.15
 l r0 MaxiFrozen TemperatureOutput2
 l r1 MaxiFrozen PressureOutput2
 blt r1 1000 StartAlarmLowPressure #1Mpa
-bgt r1 18000 StartAlarmhightPressure #18Mpa
-bltal r1 18000 StopAlarm
+bgt r1 45000 StartAlarmhightPressure #45Mpa
+bltal r1 45000 StopAlarm
 bgtal r1 1000 StopAlarm
 StopCrise:
-bltal r0 163 StopMaxi
-bgtal r0 183 StartMaxi
+bltal r0 100 StopFrizz #-173°
+bgtal r0 120 StartFrizz #-153°
 j Start
+
 #----- Fonctions -----
-StopMaxi:
+StopFrizz:
 s MaxiFrozen Mode 0
 j ra
-StartMaxi:
+StartFrizz:
 s MaxiFrozen Mode 1
 j ra
+
 StartAlarmLowPressure:
-jal StopMaxi
+jal StopFrizz
 sb Alarm Mode 40
 sb Alarm Volume 100
 sb Alarm On 1
 j StopCrise
 StartAlarmhightPressure:
-jal StopMaxi
+jal StopFrizz
 sb Alarm Mode 39
 sb Alarm Volume 100
 sb Alarm On 1
 j StopCrise
+
 StopAlarm:
 sb Alarm On 0
 j ra
+
+#RatioOxygenInput 
+#RatioCarbonDioxideInput
+#RatioNitrogenInput
+#RatioPollutantInput
+#RatioVolatilesInput
+#RatioNitrousOxideInput
+#RatioWaterInput
