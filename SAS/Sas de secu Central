@@ -1,16 +1,18 @@
 #----- SAS Protection -----
-alias Sensor d0
+alias Sensor d0 #interior
 alias Aspiration d1
 alias Pressurisation d2
 define Lamp 1514476632
 define AllSensor -1747737642
 define Door -324331872
+define Alarm -828056979
 
 Start:
 move r0 0
 lb r0 AllSensor RatioPollutant 1
 lb r1 AllSensor RatioVolatiles 1
 lb r2 AllSensor RatioNitrousOxyde 1
+
 add r0 r0 r1
 add r0 r0 r2
 bgt r0 0.01 StartVerrouillage
@@ -18,6 +20,20 @@ l r3 Sensor Pressure
 blt r3 95 StartPressure
 l r3 Sensor Pressure 
 bge r3 95 StopPressure
+#Crise:
+lb r4 AllSensor Pressure "Average" # mettre le bon Code !
+blt r4 85 StartAlarmLowPressure #85kpa
+bgt r4 125 StartAlarmhightPressure #125kpa
+bltal r4 125 StopAlarm
+bgtal r4 85 StopAlarm
+ 
+lb r5 AllSensor Temperature "Average"
+blt r4 301 StartAlarmLowTemp #18Degré
+bgt r4 318 StartAlarmhightTemp #35Degré
+bltal r4 318 StopAlarm
+bgtal r4 301 StopAlarm
+StopCrise:
+
 j Start
 
 #----- Fonctions -----
@@ -49,4 +65,30 @@ StopPressure:
 s Pressurisation PressureExternal 95
 s Pressurisation Mode 0
 s Pressurisation On 0
+j ra
+
+StartAlarmLowPressure:
+sb Alarm Mode 40
+sb Alarm Volume 100
+sb Alarm On 1
+j StopCrise
+StartAlarmhightPressure:
+sb Alarm Mode 39
+sb Alarm Volume 100
+sb Alarm On 1
+j StopCrise
+
+StartAlarmLowTemp:
+sb Alarm Mode à déterminer
+sb Alarm Volume 100
+sb Alarm On 1
+j StopCrise
+StartAlarmhightTemp:
+sb Alarm Mode à déterminer
+sb Alarm Volume 100
+sb Alarm On 1
+j StopCrise
+
+StopAlarm:
+sb Alarm On 0
 j ra
