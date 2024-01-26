@@ -1,0 +1,42 @@
+#----- Filtration Poluant et Volatile -----
+alias Filter db
+alias AlarmColmatage d0 
+define Door -324331872
+
+jal StopAlarm
+Start:
+ls r1 Filter 0 Quantity
+ls r2 Filter 1 Quantity
+l r3 Filter RatioPollutantInput
+l r4 Filter RatioVolatilesInput
+bltal r1 0.02 StartAlarm
+bltal r2 0.02 StartAlarm
+move r0 0
+add r0 r4 r3
+bgtzal r0 StartFilter
+beqzal r0 StopFilter
+j Start
+
+#--- Fonctions -------------------
+StartFilter:
+s Filter Mode 1
+sb Door Open 0
+j ra
+StopFilter:
+s Filter Mode 0
+j ra
+StartAlarm:
+s AlarmColmatage On 1
+ra
+StopAlarm:
+s AlarmColmatage On 0
+ra
+
+
+#RatioOxygenInput
+#RatioCarbonDioxideInput
+#RatioNitrogenInput
+#RatioPollutantInput
+#RatioVolatilesInput
+#RatioWaterInput
+#RatioNitrousOxideInput
