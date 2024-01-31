@@ -7,46 +7,50 @@ define AllSensor -1747737642
 define Door -324331872
 
 Start:
+l r4 Sensor Pressure
+blt r4 95 StartPressure
+bge r4 95 StopPressure
+
 move r0 0
-lb r0 AllSensor RatioPollutant 1
-lb r1 AllSensor RatioVolatiles 1
-lb r2 AllSensor RatioNitrousOxide 1
-add r0 r0 r1
-add r0 r0 r2
+lb r1 AllSensor RatioPollutant 1
+lb r2 AllSensor RatioVolatiles 1
+lb r3 AllSensor RatioNitrousOxyde 1
+add r0 r1 r2
+add r0 r0 r3
 bgtz r0 StartVerrouillage
-l r3 Sensor Pressure
-blt r3 95 StartPressure
-l r3 Sensor Pressure
-bge r3 95 StopPressure
 j Start
 
 #----- Fonctions -----
 StartVerrouillage:
 sb Lamp On 0
-sb Door Open 0
 s Pressurisation On 0
-l r0 Sensor Pressure
-bgtal r0 0 StartAspi
-beqal r0 0 StopAspi
+l r5 Sensor Pressure
+bgtal r5 0 StartAspi
+yield
+beq r5 0 StopAspi
+sb Door Open 0
 j StartVerrouillage
 
 StartAspi:
 s Aspiration On 1
-yield
 sb Lamp On 1
+yield
 j ra
 StopAspi:
 s Aspiration On 0
 sb Lamp On 1
-j ra
+j Start
 
 StartPressure:
-s Pressurisation PressureExternal 95
+#sb Door Open 1
+s Pressurisation PressureExternal 100
 s Pressurisation Mode 0
 s Pressurisation On 1
+yield
+yield
 j ra
 StopPressure:
-s Pressurisation PressureExternal 95
+s Pressurisation PressureExternal 100
 s Pressurisation Mode 0
 s Pressurisation On 0
 j ra
