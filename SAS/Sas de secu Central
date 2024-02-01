@@ -8,16 +8,16 @@ define Door -324331872
 
 Start:
 l r4 Sensor Pressure
-blt r4 95 StartPressure
-bge r4 95 StopPressure
+bltal r4 95 StartPressure
+beqal r4 95 StopPressure
+bgtal r4 100 ReducePressure
 
-move r0 0
 lb r1 AllSensor RatioPollutant 1
 lb r2 AllSensor RatioVolatiles 1
 lb r3 AllSensor RatioNitrousOxyde 1
-add r0 r1 r2
-add r0 r0 r3
-bgtz r0 StartVerrouillage
+add r1 r1 r2
+add r1 r1 r3
+bgtz r1 StartVerrouillage
 j Start
 
 #----- Fonctions -----
@@ -27,8 +27,8 @@ s Pressurisation On 0
 l r5 Sensor Pressure
 bgtal r5 0 StartAspi
 yield
-beq r5 0 StopAspi
 sb Door Open 0
+beq r5 0 StopAspi
 j StartVerrouillage
 
 StartAspi:
@@ -39,18 +39,23 @@ j ra
 StopAspi:
 s Aspiration On 0
 sb Lamp On 1
+yield
 j Start
 
 StartPressure:
-#sb Door Open 1
 s Pressurisation PressureExternal 100
 s Pressurisation Mode 0
 s Pressurisation On 1
 yield
-yield
 j ra
 StopPressure:
-s Pressurisation PressureExternal 100
-s Pressurisation Mode 0
 s Pressurisation On 0
+yield
 j ra
+ReducePressure:
+sb Door Open 1
+s Pressurisation Mode 1
+s Pressurisation On 1
+yield
+j ra
+
