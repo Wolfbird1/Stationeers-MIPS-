@@ -1,0 +1,46 @@
+#----- Filtration Poluant et Volatile 	-----
+#----- 		+ Maintien CO2 				-----
+alias Filter db
+alias CO2 d0 
+alias Door d1
+define Alarm -828056979
+
+Start:
+l r0 Filter RatioCarbonDioxideInput
+l r1 Filter RatioPollutantInput
+l r2 Filter RatioVolatilesInput
+add r3 r1 r2
+bltal r0 0.20 StartCO2
+bgtal r0 0.22 StopCO2
+bgtzal r3 StartFilter
+beqzal r3 StopFilter
+j Start
+
+#--- Fonctions -------------------
+StartCO2
+s CO2 On 1
+j ra
+StopCO2
+s CO2 On 0
+j ra
+StartFilter:
+s Filter Mode 1
+sb Alarm Mode 43
+sb Alarm Volume 100
+sb Alarm On 1
+s Door Open 0
+j ra
+StopFilter:
+sb Alarm On 0
+s Filter Mode 0
+j ra
+
+
+
+#RatioOxygenInput
+#RatioCarbonDioxideInput
+#RatioNitrogenInput
+#RatioPollutantInput
+#RatioVolatilesInput
+#RatioWaterInput
+#RatioNitrousOxideInput
