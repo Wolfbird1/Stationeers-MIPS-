@@ -20,18 +20,16 @@ Start:
 #----- Si la batterie n'est plus  100% activer le processus de consomation minimum
 lb r14 Batterie Charge Sum
 blt r14 7200000 StartSave
-
-#----- Contrle de l'clairage en fct de la présence -----
-lb r0 SleeperG EntityState Sum 
+#----- Contrle de l'Eclairage en fct de la présence -----
+lb r0 SleeperG EntityState Sum
 lb r1 SleeperD EntityState Sum
 add r0 r0 r1
 lb r2 Presence Quantity Sum
 beq r0 4 StopLed
 beq r2 0 StopLed
 j StartLed
-
+@EndLed:
 # Maintien les Combinaison toutes les 6h
-StartSuit:
 lbn r3 Memory HASH("Timer") Setting 1
 beqal r3 0 StartSuitRestor
 beqal r3 6 StartSuitRestor
@@ -39,13 +37,12 @@ beqal r3 12 StartSuitRestor
 beqal r3 18 StartSuitRestor
 lb r4 SuitStore RequiredPower Maximum
 bltal r4 51 StopSuitRestor
-# Detection baisse de pression
 
+# Detection baisse de pression
 lb r8 GazSensor Pressure
 bltal r8 90 @Depressurisation
 beqal r8 100 @Normal
 bgtal r8 100 @Surpression
-
 #----- Horloge 24h -----
 jal StartTimer
 j Start
@@ -101,12 +98,12 @@ StopLed:
 sb Lamp On 0
 sb Display On 0
 sb Display2 On 0
-j StartSuit
+j @EndLed
 StartLed:
 sb Lamp On 1
 sb Display On 1
 sb Display2 On 1
-j StartSuit
+j @EndLed
 
 StartSave:
 jal StopSuitRestor
