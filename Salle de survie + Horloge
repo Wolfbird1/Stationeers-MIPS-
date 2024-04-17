@@ -1,61 +1,70 @@
 define SolarSensor 1076425094
 define Memory -851746783
-define Display 372043914 # à vérifier hash du petit Display
-define Presence 322782515
-define Lamp 1514476632
-define SuitStore 318109626
+define Display -815193061
+define Display2 -53151617
+define Presence 568800213
+define Lamp 555215790
+define SuitStore 255034731
 define PressureRegulator 209854039
-define Batterie 1406656973 # à vérifier
+define Batterie -400115994
 define Control -128473777
-define Sleeper -1467449329 # à vérifier
-
+define SleeperG 1213495833
+define SleeperD -1812330717
+sb Display On 1
 Start:
-#----- Si la batterie n'est plus à 100% activer le processus de consomation minimum
-lb r0 Batterie PowerPotential Sum 
-blt r0 7200 StartSave
+#----- Si la batterie n'est plus  100% activer le processus de consomation minimum
+lb r14 Batterie Charge Sum
+blt r14 7200000 StartSave
 #----- Horloge 24h -----
 jal StartTimer
-
-# Contrôle de l'éclairage en fct de la présence
+# Contrle de l'clairage en fct de la prsence
 StartLigth:
-lb r1 Sleeper Open Sum
-lb r0 Presence Quantity Sum
-snez r0 r0 1
-sb Lamp on r0
+lb r0 SleeperG EntityState Sum
+lb r1 SleeperD EntityState Sum
+lb r2 Presence Quantity Sum
+abs r0 r0
+abs r1 r1
+div r0 r0 2
+div r1 r1 2
+add r0 r0 r1
+sub r2 r2 r0
+sb Display2 Setting r2
+snez r0 r2
+sb Lamp On r0
 
 # Maintien les Combinaison toutes les 6h
-lbn r0 Memory Timer Setting
-beqal r0 0 StartSuitRestor
-beqal r0 6 StartSuitRestor
-beqal r0 12 StartSuitRestor
-beqal r0 18 StartSuitRestor
-lb r1 SuitStore RequiredPower max
-blt r1 51 StopSuitRestor
+lbn r3 Memory HASH("Timer") Setting 1
+beqal r3 0 StartSuitRestor
+beqal r3 6 StartSuitRestor
+beqal r3 12 StartSuitRestor
+beqal r3 18 StartSuitRestor
+lb r4 SuitStore RequiredPower Maximum
+bltal r4 51 StopSuitRestor
 j Start
 
 #----- Fonctions -----
 #----- Horloge 24h -----
-# Placer le capteur solaire sur un Mur coté Sud Face au nord Alimentation vers le BAS
+# Placer le capteur solaire sur un Mur cot Sud Face au nord Alimentation vers le BAS
 StartTimer:
-lb r0 SolarSensor Horizontal Sum
-add r0 r0 180 	# Angle de 0 à 359
-mul r0 r0 4		# Nombre de minute dans 24h (360°)
-move r1 r0		# Sauvegarde des minutes
-div r0 r0 60	# Nombre d'heure
-trunc r0 r0 	# Nombre d'heure sans Virgule
-mul r15 r0 60	# Heure en minute à sous traire à minute totale
-sub r1 r1 r15   # Minute sans les heures
-div r1 100 		# Minute en 'décimale poour permettre un affichage 23.59
-add r0 r0 r1	# Concaténation Heure & minute
-sbn Display Timer Setting r0
-sbn Memory Timer Setting r0 # Mémoire à mettre en liaison avec l'allimentation principale permettant d'afficher l'heure dans toute la base
-StopTimer:
+lb r5 SolarSensor Horizontal Sum
+add r5 r5 180  # Angle de 0  359
+mul r5 r5 4  # Nombre de minute dans 24h (360)
+move r6 r5  # Sauvegarde des minutes
+div r5 r5 60 # Nombre d'heure
+trunc r5 r5  # Nombre d'heure sans Virgule
+mul r15 r5 60 # Heure en minute a soustraire
+sub r6 r6 r15
+trunc r6 r6
+div r6 r6 100
+add r5 r5 r6
+sbn Display HASH("Timing") Setting r5
+sbn Memory HASH("Timer") Setting r5
 j ra
 
 StartSuitRestor:
 sb SuitStore On 1
-lb r1 SuitStore RequiredPower max
-blt r1 51 StopSuitRestor
+lb r7 SuitStore RequiredPower Maximum
+blt r7 51 StopSuitRestor
 sb PressureRegulator On 1
 j ra
 
@@ -69,3 +78,4 @@ jal StopSuitRestor
 sb Display On 0
 sb Lamp On 0
 sb Control On 0
+j Start
