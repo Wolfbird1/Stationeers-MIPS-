@@ -1,4 +1,5 @@
 define SolarSensor 1076425094
+define GazSensor -1747737642
 define Memory -851746783
 define Display -815193061
 define Display2 -53151617
@@ -10,29 +11,26 @@ define Batterie -400115994
 define Control -128473777
 define SleeperG 1213495833
 define SleeperD -1812330717
+define BlastDoor 337416191
+define Alarm -828056979
+
 sb Display On 1
 Start:
 #----- Si la batterie n'est plus  100% activer le processus de consomation minimum
 lb r14 Batterie Charge Sum
 blt r14 7200000 StartSave
-#----- Horloge 24h -----
-jal StartTimer
-# Contrle de l'clairage en fct de la prsence
-StartLigth:
-lb r0 SleeperG EntityState Sum
+
+#----- Contrle de l'clairage en fct de la présence -----
+lb r0 SleeperG EntityState Sum 
 lb r1 SleeperD EntityState Sum
-lb r2 Presence Quantity Sum
-abs r0 r0
-abs r1 r1
-div r0 r0 2
-div r1 r1 2
 add r0 r0 r1
-sub r2 r2 r0
-sb Display2 Setting r2
-snez r0 r2
-sb Lamp On r0
+lb r2 Presence Quantity Sum
+beq r0 4 StopLed
+beq r2 0 StopLed
+j StartLed
 
 # Maintien les Combinaison toutes les 6h
+StartSuit:
 lbn r3 Memory HASH("Timer") Setting 1
 beqal r3 0 StartSuitRestor
 beqal r3 6 StartSuitRestor
@@ -40,6 +38,15 @@ beqal r3 12 StartSuitRestor
 beqal r3 18 StartSuitRestor
 lb r4 SuitStore RequiredPower Maximum
 bltal r4 51 StopSuitRestor
+# Detection baisse de pression
+
+lb r8 GazSensor Pressure
+bltal r8 90 @Depressurisation
+beqal r8 100 @Normal
+bgtal r8 100 @Surpression
+
+#----- Horloge 24h -----
+jal StartTimer
 j Start
 
 #----- Fonctions -----
@@ -48,15 +55,15 @@ j Start
 StartTimer:
 lb r5 SolarSensor Horizontal Sum
 add r5 r5 180  # Angle de 0  359
-mul r5 r5 4  # Nombre de minute dans 24h (360)
+mul r5 r5 4  # Nombre de minute dans 24h (360degre)
 move r6 r5  # Sauvegarde des minutes
 div r5 r5 60 # Nombre d'heure
 trunc r5 r5  # Nombre d'heure sans Virgule
-mul r15 r5 60 # Heure en minute a soustraire
-sub r6 r6 r15
-trunc r6 r6
-div r6 r6 100
-add r5 r5 r6
+mul r15 r5 60 # Heures en minutes a soustraire
+sub r6 r6 r15 # soustraire les heures
+trunc r6 r6 # les minutes sans Virgule
+div r6 r6 100 # Les minutes en décimale
+add r5 r5 r6 # les heures . les Minutes
 sbn Display HASH("Timing") Setting r5
 sbn Memory HASH("Timer") Setting r5
 j ra
@@ -73,9 +80,38 @@ sb SuitStore On 0
 sb PressureRegulator On 0
 j ra
 
+@Depressurisation:
+sb BlastDoor Open 0
+sb Alarm On 1
+sb Vent PressureExternal 95
+sb Vent Mode 0
+sb Vent On 1
+j ra
+@Surpression:
+sb Vent Mode 1
+sb Vent On 1
+j ra
+@Normal:
+sb Vent On 0
+sb Alarm On 0
+j ra
+
+StopLed:
+sb Lamp On 0
+sb Display On 0
+sb Display2 On 0
+j StartSuit
+StartLed:
+sb Lamp On 1
+sb Display On 1
+sb Display2 On 1
+j StartSuit
+
 StartSave:
 jal StopSuitRestor
+sb BlastDoor Open 0
 sb Display On 0
+sb Display2 On 0
 sb Lamp On 0
+sb BlastDoor On 0
 sb Control On 0
-j Start
