@@ -13,6 +13,7 @@ define SleeperG 1213495833
 define SleeperD -1812330717
 define BlastDoor 337416191
 define Alarm -828056979
+define Vent -842048328
 
 sb Display On 1
 Start:
