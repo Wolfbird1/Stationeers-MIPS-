@@ -2,7 +2,6 @@
 alias FilterN2 db
 define Filter -348054045
 define PipeSensor -767597887
-define Pump -1766301997 A verifier
 define TrbPump -1235546985 A trouver
 define Vent -842048328
 define Memory -851746783
@@ -17,28 +16,30 @@ define LampE -1306415132  # Battery Powered
 define LampF 1514476632   # Round
 define LampG 1592905386   # Round Angled
 define LampH 1436121888   # Small Round
-
+sb Filter Mode 1 # A supprimer après la 1er exécution!
 Start:
 #----- Gestion de la pression -----
-beqzal r6 StartAspir
+lb r6 bPipeSensor Pressure
+bltal r6 10000 StartAspir
 bgtal r6 25000 StopPump #25Mpa
 bgtal r6 55000 StartExpir
 bltal r6 55000 StopPump
 
 #----- Optimisation de production de Gaz filtrer -----
-lb r0 bPipeSensor RatioCarbonDioxide
-lb r1 bPipeSensor RatioPollutant
-lb r2 bPipeSensor RatioVolatiles
-lb r3 bPipeSensor RatioNitrogen
-lb r4 bPipeSensor RatioOxygen
-lb r5 bPipeSensor RatioNitrousOxyde
-lb r6 bPipeSensor Pressure
+lb r0 PipeSensor RatioCarbonDioxide
+lb r1 PipeSensor RatioPollutant
+lb r2 PipeSensor RatioVolatiles
+lb r3 PipeSensor RatioNitrogen
+lb r4 PipeSensor RatioOxygen
+lb r5 PipeSensor RatioNitrousOxyde
+#----- Start -----
 bgtzal r0 StartFilterCO2
 bgtzal r1 StartFilterX
 bgtzal r2 StartFilterH2
 bgtzal r3 StartFilterN2
 bgtzal r4 StartFilterO2
 bgtzal r5 StartFilterNO2
+#----- Stop -----
 beqzal r0 StopFilterCO2
 beqzal r1 StopFilterX
 beqzal r2 StopFilterH2
@@ -50,16 +51,16 @@ beqzal r5 StopFilterNO2
 lb r7 Presence Quantity Sum
 beq r7 0 StopLed
 bne r7 0 StartLed
-@EndLed:
 
 #----- Power & Timer Display -----
 lbn r15 Memory HASH("Power") Sum
 sbn Display2 HASH("Power") Setting r15
 lbn r15 Memory HASH("Timer") Sum
 sbn Display HASH("Timing") Setting r15
-j Start
 
-#----- Fonction ON -----
+j Start
+#----- Fonctions -----
+#----- Fonction Filter ON -----
 StartFilterN2:
 s FilterN2 Mode 1
 j ra
@@ -69,22 +70,18 @@ sbn Filter HASH("FilterCO2") Mode 1
 j ra
 StartFilterX:
 sbn Filter HASH("FilterX") On 1
-sbn Filter HASH("FilterX") Mode 1
 j ra
 StartFilterH2:
 sbn Filter HASH("FilterH2") On 1
-sbn Filter HASH("FilterH2") Mode 1
 j ra
 StartFilterO2:
 sbn Filter HASH("FilterO2") On 1
-sbn Filter HASH("FilterO2") Mode 1
 j ra
 StartFilterNO2:
 sbn Filter HASH("FilterNO2") On 1
-sbn Filter HASH("FilterNO2") Mode 1
 j ra
 
-#----- Fonction OFF -----
+#----- Fonction Filter OFF -----
 StopFilterN2:
 s FilterN2 Mode 0
 j ra
@@ -107,7 +104,7 @@ j ra
 #----- Fonction Ventilation -----
 StartAspir:
 sb TrbPump Mode 1
-sb TrbPump Setting 100
+sb TrbPump Setting 50
 sb TrbPump On 1
 j ra
 StartExpir:
@@ -131,7 +128,7 @@ sb LampG On 0
 sb LampH On 0
 sb Display On 0
 sb Display2 On 0
-j @EndLed
+j ra
 StartLed:
 sb LampA On 1
 sb LampB On 1
@@ -143,4 +140,4 @@ sb LampG On 1
 sb LampH On 1
 sb Display On 1
 sb Display2 On 1
-j @EndLed
+j ra
