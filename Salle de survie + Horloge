@@ -1,3 +1,4 @@
+# Gestion de la salle de Survie au -4 !!!
 define SolarSensor 1076425094
 define GazSensor -1747737642
 define Memory -851746783
@@ -15,24 +16,16 @@ define LampH 1436121888   # Small Round
 define SuitStore 255034731
 define PressureRegulator 209854039
 define Batterie -400115994
-define Control -128473777
 define SleeperG 1213495833
 define SleeperD -1812330717
 define BlastDoor 337416191
-define Alarm -828056979
+#define Alarm -828056979
 define Vent -842048328
 Start:
 #----- Si la batterie n'est plus  100% activer le processus de consomation minimum
 lb r14 Batterie Charge Sum
 blt r14 7200000 StartSave
-# Maintien les Combinaison toutes les 6h
-lbn r3 Memory HASH("Timer") Setting 1
-beqal r3 0 StartSuitRestor
-beqal r3 6 StartSuitRestor
-beqal r3 12 StartSuitRestor
-beqal r3 18 StartSuitRestor
-lb r4 SuitStore RequiredPower Maximum
-bltal r4 51 StopSuitRestor
+#----- Initialisation des systèmes de VIE -----
 # Detection baisse de pression
 lb r8 GazSensor Pressure
 bltal r8 90 StartDepression
@@ -62,9 +55,19 @@ lb r1 SleeperD EntityState Sum
 add r0 r0 r1
 lb r2 Presence Quantity Sum
 beq r0 4 StopLed
+add r0 r0 r2
+beq r0 4 StopLed
 beq r2 0 StopLed
 j StartLed
 EndLed:
+# Maintien les Combinaison toutes les 6h
+lbn r3 Memory HASH("Timer") Setting 1
+beqal r3 0 StartSuitRestor
+beqal r3 6 StartSuitRestor
+beqal r3 12 StartSuitRestor
+beqal r3 18 StartSuitRestor
+lb r4 SuitStore RequiredPower Maximum
+bltal r4 51 StopSuitRestor
 j Start
 #----- Fonctions -----
 #----- Fonctions Suit -----
@@ -81,7 +84,7 @@ j ra
 #----- Fonctions Pression ------
 StartDepression:
 sb BlastDoor Open 0
-sb Alarm On 1
+"#sb Alarm On 1
 sb Vent PressureExternal 95
 sb Vent Mode 0
 sb Vent On 1
@@ -92,7 +95,7 @@ sb Vent On 1
 j ra
 StartNormalPression:
 sb Vent On 0
-sb Alarm On 0
+#sb Alarm On 0
 j ra
 #----- Fonctions Eclairage -----
 StopLed:
@@ -106,6 +109,7 @@ sb LampG On 0
 sb LampH On 0
 sb Display On 0
 sb Display2 On 0
+sb BlastDoor On 0
 j EndLed
 StartLed:
 sb LampA On 1
@@ -118,12 +122,15 @@ sb LampG On 1
 sb LampH On 1
 sb Display On 1
 sb Display2 On 1
+sb BlastDoor On 1
+sb BlastDoor Open 
 j EndLed
 #----- Fonctions Sauvegarde d'Energie -----
 StartSave:
 jal StopSuitRestor
-jal Depression
+jal StartDepression
 sb BlastDoor Open 0
+sb BlastDoor On 0
 sb Display On 0
 sb Display2 On 0
 sb LampA On 0
@@ -134,5 +141,4 @@ sb LampE On 0
 sb LampF On 0
 sb LampG On 0
 sb LampH On 0
-sb BlastDoor On 0
-sb Control On 0
+j Start
