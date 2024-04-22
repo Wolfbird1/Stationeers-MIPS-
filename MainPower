@@ -1,0 +1,54 @@
+define Memory -851746783
+define Presence 568800213
+define Display -815193061
+define Display3 -1949054743 A verifier
+define LampA -1860064656  # Regular
+define LampB 797794350    # Long
+define LampC 555215790    # Long Wide
+define LampD 1847265835   # Long Angled
+define LampE -1306415132  # Battery Powered
+define LampF 1514476632   # Round
+define LampG 1592905386   # Round Angled
+define LampH 1436121888   # Small Round
+Start:
+#----- Affichage de la puissance Disponible -----
+lbn r0 Memory HASH("MemPower") Setting Sum
+sb Display3 Setting r0
+sbn Memory HASH("Power") Setting r0
+
+#----- Affichage de l'heure ----
+lbn r1 Memory HASH("Timer") Setting Sum
+sb Display Setting r1
+
+#----- Gestion éclairage -----
+lb r2 Presence Quantity Sum
+bneal r2 0 StartLed
+beqal r2 0 StopLed
+
+j Start
+#----- Fonctions -----
+#----- Fonctions Eclairage -----
+StopLed:
+sb LampA On 0
+sb LampB On 0
+sb LampC On 0
+sb LampD On 0
+sb LampE On 0
+sb LampF On 0
+sb LampG On 0
+sb LampH On 0
+sb Display On 0
+sb Display2 On 0
+j ra
+StartLed:
+sb LampA On 1
+sb LampB On 1
+sb LampC On 1
+sb LampD On 1
+sb LampE On 1
+sb LampF On 1
+sb LampG On 1
+sb LampH On 1
+sb Display On 1
+sb Display2 On 1
+j ra
