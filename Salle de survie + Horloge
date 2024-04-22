@@ -35,9 +35,9 @@ lb r4 SuitStore RequiredPower Maximum
 bltal r4 51 StopSuitRestor
 # Detection baisse de pression
 lb r8 GazSensor Pressure
-bltal r8 90 @Depression
-beqal r8 100 @NormalPression
-bgtal r8 100 @Surpression
+bltal r8 90 StartDepression
+bapal r8 100 105 0.5 StartNormalPression # A TESTER
+bgtal r8 106 StartSurpression
 #----- Horloge 24h -----
 # Placer le capteur solaire sur un Mur cot Sud Face au nord Alimentation vers le BAS
 lb r5 SolarSensor Horizontal Sum
@@ -54,7 +54,7 @@ add r5 r5 r6 # les heures . les Minutes
 sbn Display HASH("Timing") Setting r5
 sbn Memory HASH("Timer") Setting r5
 #----- Power Display -----
-lbn r12 memory HASH("Power") Sum
+lbn r12 memory HASH("Power") Setting Sum
 sbn Display2 HASH("Power") Setting r12
 #----- Gestion de l'éclairage -----
 lb r0 SleeperG EntityState Sum
@@ -64,7 +64,7 @@ lb r2 Presence Quantity Sum
 beq r0 4 StopLed
 beq r2 0 StopLed
 j StartLed
-@EndLed:
+EndLed:
 j Start
 #----- Fonctions -----
 #----- Fonctions Suit -----
@@ -79,18 +79,18 @@ sb SuitStore On 0
 sb PressureRegulator On 0
 j ra
 #----- Fonctions Pression ------
-@Depression:
+StartDepression:
 sb BlastDoor Open 0
 sb Alarm On 1
 sb Vent PressureExternal 95
 sb Vent Mode 0
 sb Vent On 1
 j ra
-@Surpression:
+StartSurpression:
 sb Vent Mode 1
 sb Vent On 1
 j ra
-@NormalPression:
+StartNormalPression:
 sb Vent On 0
 sb Alarm On 0
 j ra
@@ -106,7 +106,7 @@ sb LampG On 0
 sb LampH On 0
 sb Display On 0
 sb Display2 On 0
-j @EndLed
+j EndLed
 StartLed:
 sb LampA On 1
 sb LampB On 1
@@ -118,11 +118,11 @@ sb LampG On 1
 sb LampH On 1
 sb Display On 1
 sb Display2 On 1
-j @EndLed
+j EndLed
 #----- Fonctions Sauvegarde d'Energie -----
 StartSave:
 jal StopSuitRestor
-jal @Depression
+jal Depression
 sb BlastDoor Open 0
 sb Display On 0
 sb Display2 On 0
