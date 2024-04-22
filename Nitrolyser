@@ -1,20 +1,23 @@
-#----- Nitrolyser Contrôl System -----
+#----- Nitrolyser Contrl System -----
 alias Filter db
 alias Nitro d0
 define Memory -851746783
 
 Start:
-lbn r0 Memory HASH("Power") Sum
+lbn r0 Memory HASH("Power") Setting Sum
 l r1 Filter PressureOutput
 bgt r1 50000 StopAll
-bltal r0 20000000 StopNItro
+bltal r0 20000000 StopNitro
 bgtal r0 26000000 StartNitro
+l r2 Filter RatioNitrousOxideInput
+beqal r2 0 StopNitro
+bgtal r2 0 StartNitro
 j Start
 StartNitro:
 s Nitro On 1
-s Filter Mode 1
-j ra 
-StopNItroNitro:
+sb Filter Mode 1
+j ra
+StopNitro:
 s Nitro On 0
 s Filter Mode 0
 j ra
