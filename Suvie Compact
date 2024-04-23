@@ -1,0 +1,127 @@
+define SolarSensor 1076425094
+define GazSensor -1747737642  # Gestion de la salle de Survie au -4 !!!
+define Memory -851746783
+define Display -815193061
+define Display2 -53151617
+define Presence 568800213
+define LampA -1860064656  # Regular
+define LampB 797794350    # Long
+define LampC 555215790    # Long Wide
+define LampD 1847265835   # Long Angled  #define LampE -1306415132  # Battery Powered
+define LampF 1514476632   # Round
+define LampG 1592905386   # Round Angled
+define LampH 1436121888   # Small Round
+define SuitStore 255034731
+define PressureRegulator 209854039
+define Batterie -400115994
+define SleeperG 1213495833
+define SleeperD -1812330717
+define BlastDoor 337416191
+#define Alarm -828056979
+define Vent -1129453144
+alias Console db
+Start:
+lb r14 Batterie Charge Sum #----- Si la batterie n'est plus  100% activer le processus de consomation minimum
+blt r14 7200000 StartSave
+lb r8 GazSensor Pressure Sum
+bltal r8 90 StartDepression
+bapal r8 100 5 StartNormalPression
+bgtal r8 106 StartSurpression
+lb r5 SolarSensor Horizontal Sum   #----- Horloge 24h -----
+add r5 r5 180  # Angle de 0  359
+mul r5 r5 4  # Nombre de minute dans 24h (360degre)
+move r6 r5  # Sauvegarde des minutes
+div r5 r5 60 # Nombre d'heure
+trunc r5 r5  # Nombre d'heure sans Virgule
+mul r15 r5 60 # Heures en minutes a soustraire
+sub r6 r6 r15 # soustraire les heures
+trunc r6 r6 # les minutes sans Virgule
+div r6 r6 100 # Les minutes en dcimale
+add r5 r5 r6 # les heures . les Minutes
+sbn Display HASH("Timing") Setting r5
+sbn Memory HASH("Timer") Setting r5
+lbn r12 Memory HASH("Power") Setting Sum
+sbn Display2 HASH("Power") Setting r12
+lb r0 SleeperG EntityState Sum
+lb r1 SleeperD EntityState Sum
+add r0 r0 r1
+lb r2 Presence Quantity Sum
+beq r0 4 StopLed
+add r0 r0 r2
+beq r0 4 StopLed
+beq r2 0 StopLed
+j StartLed
+EndLed:
+lbn r3 Memory HASH("Timer") Setting 1
+beqal r3 0 StartSuitRestor
+beqal r3 6 StartSuitRestor
+beqal r3 12 StartSuitRestor
+beqal r3 18 StartSuitRestor
+lb r4 SuitStore RequiredPower Maximum
+bltal r4 51 StopSuitRestor
+j Start
+StartSuitRestor:
+sb SuitStore On 1
+lb r7 SuitStore RequiredPower Maximum
+blt r7 51 StopSuitRestor
+sb PressureRegulator On 1
+j ra
+StopSuitRestor:
+sb SuitStore On 0
+sb PressureRegulator On 0
+j ra
+StartDepression:
+#sb BlastDoor Open 0
+#sb Alarm On 1
+sb Vent PressureExternal 95
+sb Vent Mode 0
+sb Vent On 1
+j ra
+StartSurpression:
+sb Vent Mode 1
+sb Vent On 1
+j ra
+StartNormalPression:
+sb Vent On 0
+j ra
+StopLed:
+sb LampA On 0
+sb LampB On 0
+sb LampC On 0
+sb LampD On 0
+sb LampF On 0
+sb LampG On 0
+sb LampH On 0
+sb Display On 0
+sb Display2 On 0
+sb BlastDoor On 0
+j EndLed
+StartLed:
+sb LampA On 1
+sb LampB On 1
+sb LampC On 1
+sb LampD On 1
+sb LampF On 1
+sb LampG On 1
+sb LampH On 1
+sb Display On 1
+sb Display2 On 1
+sb BlastDoor On 1
+sb BlastDoor Open 1
+j EndLed
+StartSave:
+jal StopSuitRestor
+jal StartDepression
+sb BlastDoor Open 0
+sb BlastDoor On 0
+sb Display On 0
+sb Display2 On 0
+sb LampA On 0
+sb LampB On 0
+sb LampC On 0
+sb LampD On 0
+sb LampF On 0
+sb LampG On 0
+sb LampH On 0
+#s Console On 0
+j Start
