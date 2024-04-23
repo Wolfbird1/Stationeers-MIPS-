@@ -1,6 +1,7 @@
 # Filtrer tous 6 Filtration machine
 alias FilterN2 db
 define Filter -348054045
+define RadioPower -327468845
 define PipeSensor -767597887
 define TrbPump 1310794736
 define Vent -842048328
