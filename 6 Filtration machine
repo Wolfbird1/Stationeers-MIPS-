@@ -1,69 +1,53 @@
 # Filtrer tous 6 Filtration machine
-alias FilterN2 db
 define Filter -348054045
-define RadioPower -327468845
 define PipeSensor -767597887
-define TrbPump 1310794736
-define Vent -842048328
-define Memory -851746783
-define Display -815193061
-define Display2 -53151617
-define Presence 568800213
-define LampA -1860064656  # Regular
-define LampB 797794350    # Long
-define LampC 555215790    # Long Wide
-define LampD 1847265835   # Long Angled
-define LampE -1306415132  # Battery Powered
-define LampF 1514476632   # Round
-define LampG 1592905386   # Round Angled
-define LampH 1436121888   # Small Round
-sb Filter Mode 1 # A supprimer après la 1er exécution!
+define TrbPump -1235546985 A trouver
+define Tank -123456789 A trouver
 Start:
+sb filter Lock 0
 #----- Gestion de la pression -----
-lb r6 bPipeSensor Pressure
-bltal r6 10000 StartAspir
-bgtal r6 25000 StopPump #25Mpa
-bgtal r6 55000 StartExpir
-bltal r6 55000 StopPump
-
+lb r15 PipeSensor Pressure
+bltal r15 10000 StartAspir
+bgtal r15 25000 StopPump #25Mpa
+bgtal r15 55000 StartExpir
+bltal r15 55000 StopPump
+#----- Verification pression dans les réservoir -----
+lbn r0 Tank HASH("TankCO2") RatioLiquidCarbonDioxideInput Sum
+lbn r1 Tank HASH("TankX") RatioLiquidPollutant Sum
+lbn r2 Tank HASH("TankH2") RatioLiquidVolatiles Sum
+lbn r3 Tank HASH("TankN") RatioLiquidNitrogen Sum
+lbn r4 Tank HASH("TankO2") RatioLiquidOxygen Sum
+lbn r5 Tank HASH("TankNO2") RatioLiquidNitrousOxyde Sum
+#----- Verouillage des reservoires -----
+bgtzal r0 LockFilterCO2
+bgtzal r1 LockFilterX
+bgtzal r2 LockFilterH2
+bgtzal r3 LockFilterN
+bgtzal r4 LockFilterO2
+bgtzal r5 LockFilterNO2
 #----- Optimisation de production de Gaz filtrer -----
-lb r0 PipeSensor RatioCarbonDioxide
-lb r1 PipeSensor RatioPollutant
-lb r2 PipeSensor RatioVolatiles
-lb r3 PipeSensor RatioNitrogen
-lb r4 PipeSensor RatioOxygen
-lb r5 PipeSensor RatioNitrousOxyde
-#----- Start -----
+lbn r0 Filter HASH("FilterCO2") RatioCarbonDioxideInput Sum
+lbn r1 Filter HASH("FilterX") RatioPollutant Sum
+lbn r2 Filter HASH("FilterH2") RatioVolatiles Sum
+lbn r3 Filter HASH("FilterN") RatioNitrogen Sum
+lbn r4 Filter HASH("FilterO2") RatioOxygen Sum
+lbn r5 Filter HASH("FilterNO2") RatioNitrousOxyde Sum
 bgtzal r0 StartFilterCO2
 bgtzal r1 StartFilterX
 bgtzal r2 StartFilterH2
-bgtzal r3 StartFilterN2
+bgtzal r3 StartFilterN
 bgtzal r4 StartFilterO2
 bgtzal r5 StartFilterNO2
-#----- Stop -----
 beqzal r0 StopFilterCO2
 beqzal r1 StopFilterX
 beqzal r2 StopFilterH2
-beqzal r3 StopFilterN2
+beqzal r3 StopFilterN
 beqzal r4 StopFilterO2
 beqzal r5 StopFilterNO2
-
-#----- Gestion de l'éclairage -----
-lb r7 Presence Quantity Sum
-beq r7 0 StopLed
-bne r7 0 StartLed
-
-#----- Power & Timer Display -----
-lbn r15 Memory HASH("Power") Sum
-sbn Display2 HASH("Power") Setting r15
-lbn r15 Memory HASH("Timer") Sum
-sbn Display HASH("Timing") Setting r15
-
 j Start
-#----- Fonctions -----
 #----- Fonction Filter ON -----
-StartFilterN2:
-s FilterN2 Mode 1
+StartFilterN:
+sbn Filter HASH("FilterN") Mode 1
 j ra
 StartFilterCO2:
 sbn Filter HASH("FilterCO2") On 1
@@ -81,10 +65,9 @@ j ra
 StartFilterNO2:
 sbn Filter HASH("FilterNO2") On 1
 j ra
-
 #----- Fonction Filter OFF -----
-StopFilterN2:
-s FilterN2 Mode 0
+StopFilterN:
+sbn Filter HASH("FilterN") Mode 0
 j ra
 StopFilterCO2:
 sbn Filter HASH("FilterCO2") On 0
@@ -101,7 +84,31 @@ j ra
 StopFilterNO2:
 sbn Filter HASH("FilterNO2") On 0
 j ra
-
+#----- Fonction Filter Lock -----
+LockFilterN:
+sbn Filter HASH("FilterN") Mode 0
+sbn Filter HASH("FilterN") Lock 1
+j ra
+LockFilterCO2:
+sbn Filter HASH("FilterCO2") On 0
+sbn Filter HASH("FilterCO2") Lock 1
+j ra
+LockFilterX:
+sbn Filter HASH("FilterX") On 0
+sbn Filter HASH("FilterX") Lock 1
+j ra
+LockFilterH2:
+sbn Filter HASH("FilterH2") On 0
+sbn Filter HASH("FilterH2") Lock 1
+j ra
+LockFilterO2:
+sbn Filter HASH("FilterO2") On 0
+sbn Filter HASH("FilterO2") Lock 1
+j ra
+LockFilterNO2:
+sbn Filter HASH("FilterNO2") On 0
+sbn Filter HASH("FilterNO2") Lock 1
+j ra
 #----- Fonction Ventilation -----
 StartAspir:
 sb TrbPump Mode 1
@@ -115,30 +122,4 @@ sb TrbPump On 1
 j ra
 StopPump:
 sbn TrbPump On 0
-j ra
-
-#----- Fonctions Eclairage -----
-StopLed:
-sb LampA On 0
-sb LampB On 0
-sb LampC On 0
-sb LampD On 0
-sb LampE On 0
-sb LampF On 0
-sb LampG On 0
-sb LampH On 0
-sb Display On 0
-sb Display2 On 0
-j ra
-StartLed:
-sb LampA On 1
-sb LampB On 1
-sb LampC On 1
-sb LampD On 1
-sb LampE On 1
-sb LampF On 1
-sb LampG On 1
-sb LampH On 1
-sb Display On 1
-sb Display2 On 1
 j ra
