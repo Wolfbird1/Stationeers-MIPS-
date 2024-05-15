@@ -1,8 +1,8 @@
 define SolarSensor 1076425094
-define GazSensor -1747737642  # Gestion de la salle de Survie au -4 !!!
+define GazSensor -1252983604
 define Memory -851746783
 define Display -815193061
-define Display2 -53151617
+define Display2 -1949054743
 define Presence 568800213
 define LampA -1860064656  # Regular
 define LampB 797794350    # Long
@@ -21,10 +21,10 @@ define BlastDoor 337416191
 define Vent -1129453144
 alias Console db
 Start:
-lb r14 Batterie Charge Sum #----- Si la batterie n'est plus  100% activer le processus de consomation minimum
+lb r14 Batterie Charge Sum #----- Si la batterie n'est plus  100% activer le processus de 
 blt r14 7200000 StartSave
 lb r8 GazSensor Pressure Sum
-bltal r8 90 StartDepression
+blt r8 90 StartDepression
 bapal r8 100 5 StartNormalPression
 bgtal r8 106 StartSurpression
 lb r5 SolarSensor Horizontal Sum   #----- Horloge 24h -----
@@ -41,15 +41,16 @@ add r5 r5 r6 # les heures . les Minutes
 sbn Display HASH("Timing") Setting r5
 sbn Memory HASH("Timer") Setting r5
 lbn r12 Memory HASH("Power") Setting Sum
-sbn Display2 HASH("Power") Setting r12
+#sbn Display2 HASH("Power") Setting r12
 lb r0 SleeperG EntityState Sum
 lb r1 SleeperD EntityState Sum
 add r0 r0 r1
 lb r2 Presence Quantity Sum
 beq r0 4 StopLed
 add r0 r0 r2
-beq r0 4 StopLed
+beq r0 2 StopLed
 beq r2 0 StopLed
+sbn Display2 HASH("Power") Setting r0
 j StartLed
 EndLed:
 lbn r3 Memory HASH("Timer") Setting 1
@@ -71,12 +72,12 @@ sb SuitStore On 0
 sb PressureRegulator On 0
 j ra
 StartDepression:
-#sb BlastDoor Open 0
+sb BlastDoor Open 0
 #sb Alarm On 1
 sb Vent PressureExternal 95
 sb Vent Mode 0
 sb Vent On 1
-j ra
+j Start
 StartSurpression:
 sb Vent Mode 1
 sb Vent On 1
@@ -123,5 +124,4 @@ sb LampD On 0
 sb LampF On 0
 sb LampG On 0
 sb LampH On 0
-#s Console On 0
 j Start
