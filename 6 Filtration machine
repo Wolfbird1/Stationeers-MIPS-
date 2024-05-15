@@ -1,37 +1,36 @@
 # Filtrer tous 6 Filtration machine
 define Filter -348054045
-define PipeSensor -767597887
-define TrbPump -1235546985 A trouver
-define Tank -123456789 A trouver
+define PipeSensor 435685051
+define TrbPump 1310794736
+define Tank 1013514688
+sb Filter Lock 0
 Start:
-sb filter Lock 0
 #----- Gestion de la pression -----
-lb r15 PipeSensor Pressure
-bltal r15 10000 StartAspir
-bgtal r15 25000 StopPump #25Mpa
-bgtal r15 55000 StartExpir
-bltal r15 55000 StopPump
-#----- Verification pression dans les réservoir -----
-lbn r0 Tank HASH("TankCO2") RatioLiquidCarbonDioxideInput Sum
-lbn r1 Tank HASH("TankX") RatioLiquidPollutant Sum
-lbn r2 Tank HASH("TankH2") RatioLiquidVolatiles Sum
-lbn r3 Tank HASH("TankN") RatioLiquidNitrogen Sum
-lbn r4 Tank HASH("TankO2") RatioLiquidOxygen Sum
-lbn r5 Tank HASH("TankNO2") RatioLiquidNitrousOxyde Sum
+lb r15 PipeSensor Pressure Sum
+bltal r15 4000 StartAspir
+bgtal r15 4500 StopPump #25Mpa
+bgtal r15 5500 StartExpir
+#----- Verification pression dans les rservoir -----
+lbn r0 Tank HASH("TankCO2") Pressure Sum
+lbn r1 Tank HASH("TankX") Pressure Sum
+lbn r2 Tank HASH("TankH2") Pressure Sum
+lbn r3 Tank HASH("TankN") Pressure Sum
+lbn r4 Tank HASH("TankO2") Pressure Sum
+lbn r5 Tank HASH("TankNO2") Pressure Sum
 #----- Verouillage des reservoires -----
-bgtzal r0 LockFilterCO2
-bgtzal r1 LockFilterX
-bgtzal r2 LockFilterH2
-bgtzal r3 LockFilterN
-bgtzal r4 LockFilterO2
-bgtzal r5 LockFilterNO2
+bgtal r0 30000 LockFilterCO2
+bgtal r1 1000 LockFilterX
+bgtal r2 30000 LockFilterH2
+bgtal r3 1000 LockFilterN
+bgtal r4 30000 LockFilterO2
+bgtal r5 1000 LockFilterNO2
 #----- Optimisation de production de Gaz filtrer -----
 lbn r0 Filter HASH("FilterCO2") RatioCarbonDioxideInput Sum
-lbn r1 Filter HASH("FilterX") RatioPollutant Sum
-lbn r2 Filter HASH("FilterH2") RatioVolatiles Sum
-lbn r3 Filter HASH("FilterN") RatioNitrogen Sum
-lbn r4 Filter HASH("FilterO2") RatioOxygen Sum
-lbn r5 Filter HASH("FilterNO2") RatioNitrousOxyde Sum
+lbn r1 Filter HASH("FilterX") RatioPollutantInput Sum
+lbn r2 Filter HASH("FilterH2") RatioVolatilesInput Sum
+lbn r3 Filter HASH("FilterN") RatioNitrogenInput Sum
+lbn r4 Filter HASH("FilterO2") RatioOxygenInput Sum
+lbn r5 Filter HASH("FilterNO2") RatioNitrousOxideInput Sum
 bgtzal r0 StartFilterCO2
 bgtzal r1 StartFilterX
 bgtzal r2 StartFilterH2
@@ -121,5 +120,5 @@ sb TrbPump Setting 50
 sb TrbPump On 1
 j ra
 StopPump:
-sbn TrbPump On 0
+sb TrbPump On 0
 j ra
