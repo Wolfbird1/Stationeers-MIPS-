@@ -6,11 +6,11 @@ define Tank 1013514688
 sb Filter Lock 0
 Start:
 #----- Gestion de la pression -----
-lb r15 PipeSensor Pressure Sum
-bltal r15 4000 StartAspir
-bgtal r15 4500 StopPump #25Mpa
-bgtal r15 5500 StartExpir
-#----- Verification pression dans les rservoir -----
+lb r14 PipeSensor RatioOxygen Sum
+lb r13 PipeSensor RatioNitrogen Sum
+bltal r14 1 StartAspir
+bltal r14 1 StartAspir
+#----- Verification pression dans les reservoires -----
 lbn r0 Tank HASH("TankCO2") Pressure Sum
 lbn r1 Tank HASH("TankX") Pressure Sum
 lbn r2 Tank HASH("TankH2") Pressure Sum
@@ -30,12 +30,12 @@ lbn r1 Filter HASH("FilterX") RatioPollutantInput Sum
 lbn r2 Filter HASH("FilterH2") RatioVolatilesInput Sum
 lbn r3 Filter HASH("FilterN") RatioNitrogenInput Sum
 lbn r4 Filter HASH("FilterO2") RatioOxygenInput Sum
-lbn r5 Filter HASH("FilterNO2") RatioNitrousOxideInput Sum
+lbn r5 Filter HASH("FilterNO2") RatioNitrousOxydeInput Sum
 bgtzal r0 StartFilterCO2
 bgtzal r1 StartFilterX
 bgtzal r2 StartFilterH2
-bgtzal r3 StartFilterN
-bgtzal r4 StartFilterO2
+bgtal r3 1 StartFilterN
+bgtal r4 0.5 StartFilterO2
 bgtzal r5 StartFilterNO2
 beqzal r0 StopFilterCO2
 beqzal r1 StopFilterX
@@ -44,81 +44,73 @@ beqzal r3 StopFilterN
 beqzal r4 StopFilterO2
 beqzal r5 StopFilterNO2
 j Start
-#----- Fonction Filter ON -----
-StartFilterN:
+StartFilterN:	#----- Fonction Filter ON -----
 sbn Filter HASH("FilterN") Mode 1
 j ra
 StartFilterCO2:
-sbn Filter HASH("FilterCO2") On 1
 sbn Filter HASH("FilterCO2") Mode 1
 j ra
 StartFilterX:
-sbn Filter HASH("FilterX") On 1
+sbn Filter HASH("FilterX") Mode 1
 j ra
 StartFilterH2:
-sbn Filter HASH("FilterH2") On 1
+sbn Filter HASH("FilterH2") Mode 1
 j ra
 StartFilterO2:
-sbn Filter HASH("FilterO2") On 1
+sbn Filter HASH("FilterO2") Mode 1
 j ra
 StartFilterNO2:
-sbn Filter HASH("FilterNO2") On 1
+sbn Filter HASH("FilterNO2") Mode 1
 j ra
 #----- Fonction Filter OFF -----
 StopFilterN:
 sbn Filter HASH("FilterN") Mode 0
 j ra
 StopFilterCO2:
-sbn Filter HASH("FilterCO2") On 0
+sbn Filter HASH("FilterCO2") Mode 0
 j ra
 StopFilterX:
-sbn Filter HASH("FilterX") On 0
+sbn Filter HASH("FilterX") Mode 0
 j ra
 StopFilterH2:
-sbn Filter HASH("FilterH2") On 0
+sbn Filter HASH("FilterH2") Mode 0
 j ra
 StopFilterO2:
-sbn Filter HASH("FilterO2") On 0
+sbn Filter HASH("FilterO2") Mode 0
 j ra
 StopFilterNO2:
-sbn Filter HASH("FilterNO2") On 0
+sbn Filter HASH("FilterNO2") Mode 0
 j ra
 #----- Fonction Filter Lock -----
 LockFilterN:
 sbn Filter HASH("FilterN") Mode 0
-sbn Filter HASH("FilterN") Lock 1
 j ra
 LockFilterCO2:
 sbn Filter HASH("FilterCO2") On 0
-sbn Filter HASH("FilterCO2") Lock 1
 j ra
 LockFilterX:
 sbn Filter HASH("FilterX") On 0
-sbn Filter HASH("FilterX") Lock 1
 j ra
 LockFilterH2:
 sbn Filter HASH("FilterH2") On 0
-sbn Filter HASH("FilterH2") Lock 1
 j ra
 LockFilterO2:
 sbn Filter HASH("FilterO2") On 0
-sbn Filter HASH("FilterO2") Lock 1
 j ra
 LockFilterNO2:
 sbn Filter HASH("FilterNO2") On 0
-sbn Filter HASH("FilterNO2") Lock 1
 j ra
 #----- Fonction Ventilation -----
 StartAspir:
+StartVidange:
 sb TrbPump Mode 1
-sb TrbPump Setting 50
+sb TrbPump Setting 100
 sb TrbPump On 1
-j ra
-StartExpir:
+lb r12 PipeSensor Pressure Sum
+bgtal r12 10 StartVidange
+StartFull:
 sb TrbPump Mode 0
-sb TrbPump Setting 50
-sb TrbPump On 1
-j ra
-StopPump:
+lb r12 PipeSensor Pressure Sum
+bgtal r12 55000 StartFull
 sb TrbPump On 0
 j ra
