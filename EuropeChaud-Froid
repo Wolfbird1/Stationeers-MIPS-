@@ -3,8 +3,8 @@
 alias db LifeClim
 alias d0 LifeSensor
 define Thermostat -888888888
-define TurboPumpFroid -888888888
-define TurboPumpChaud -888888888
+define TurboPumpFroid -1310794736
+define TurboPumpChaud -1310794736
 
 Start:
 # Kelvin 273.15
