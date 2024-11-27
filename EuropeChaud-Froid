@@ -1,10 +1,10 @@
 #--Contrôle l'air contenu dans le 'waste' de la Clim sur Europe à l'aire de la sortie du four et de l'air extérieur
 
 alias db LifeClim
-alias d0 LifeSensor
+alias d0 TurboPumpFroid
+alias d1 TurboPumpChaud
 define Thermostat -888888888
-define TurboPumpFroid -1310794736
-define TurboPumpChaud -1310794736
+define LifeSensor -1747737642
 
 Start:
 # Kelvin 273.15
@@ -25,17 +25,17 @@ s LifeClim Mode 0
 j ra
 
 StartChaud:
-sb TurboPumpFroid Mode 1
-sb TurboPumpFroid Setting 100
-sb TurboPumpFroid On 1
+s TurboPumpFroid Mode 1
+s TurboPumpFroid Setting 100
+s TurboPumpFroid On 1
 sleep 10
-sb TurboPumpFroid On 0
+s TurboPumpFroid On 0
 sleep 1 
-sb TurboPumpChaud Mode 0
-sb TurboPumpFroid Setting 20
-sb TurboPumpChaud On 1
+s TurboPumpChaud Mode 0
+s TurboPumpFroid Setting 20
+s TurboPumpChaud On 1
 sleep 5
-sb TurboPumpChaud On 0
+s TurboPumpChaud On 0
 s LifeClim Mode 1
 j ra
 
