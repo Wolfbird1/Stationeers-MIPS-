@@ -1,0 +1,120 @@
+alias LARre d0
+#Definition of Drop Zone
+define PickUp 0
+define IronDepot 1 #Index of junction
+define CopperDepot 2
+define CoalDepot 3
+define SiliconDepot 4
+define GoldDepot 5
+define SilverDepot 6
+define CobaltDepot 7
+define NickelDepot 8
+define LeadDepot 9
+define UraniumDepot 10
+define NotOreDepot 11
+#definition of Hash's
+define IronHash HASH("ItemIronOre")
+define CopperHash HASH("ItemCopperOre")
+define CoalHash HASH("ItemCoalOre")
+define SiliconHash HASH("ItemSiliconOre")
+define GoldHash HASH("ItemGoldOre")
+define SilverHash HASH("ItemSilverOre")
+define CobaltHash HASH("ItemCobaltOre")
+define NickelHash HASH("ItemNickelOre")
+define LeadHash HASH("ItemLeadOre")
+define UraniumHash HASH("ItemUraniumOre")
+#Start of the code
+loop:
+ls r0 LARre 0 Occupied
+beqz r0 Grab 
+j Drop
+
+Grab:
+s LARre Setting PickUp
+jal wait
+s LARre Activate 1
+yield
+Drop:
+ls r0 LARre 0 OccupantHash
+beq r0 IronHash DropIron
+beq r0 CopperHash DropCopper
+beq r0 CoalHash DropCoal
+beq r0 SiliconHash DropSilicon 
+beq r0 GoldHash DropGold
+beq r0 SilverHash DropSilver
+beq r0 CobaltHash DropCobalt
+beq r0 NickelHash DropNickel
+beq r0 LeadHash DropLead
+beq r0 UraniumHash DropUranium
+j NotOre
+wait:
+yield
+l r0 LARre Idle
+bnez r0 ra
+j wait
+DropNotOre:
+s LARre Setting NotOreDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropIron:
+s LARre Setting IronDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropCopper:
+s LARre Setting CopperDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropCoal:
+s LARre Setting CoalDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropSilicon:
+s LARre Setting SiliconDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropGold:
+s LARre Setting GoldDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropSilver:
+s LARre Setting SilverDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropCobalt:
+s LARre Setting CobaltDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropNickel:
+s LARre Setting NickelDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropLead:
+s LARre Setting LeadDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
+DropUranium:
+s LARre Setting UraniumDepot
+jal wait
+s LARre Activate 1
+yield
+j loop
