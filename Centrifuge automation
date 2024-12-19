@@ -1,0 +1,33 @@
+#The procedure:
+#Start centrifuge and once the reach 100rpm start
+#the Deepminer. Then the programs wait for all the
+#centru-ifuge to reach at least 380 ores befor
+#starting the stopping and emptying procedure.
+define Deepminer 265720906
+define Centrifuge 690945935
+define MaxLoad 380
+start:
+#True start of the main program
+sb Centrifuge Open 0
+sb Centrifuge On 1
+sleep 100
+sb Deepminer On 1
+
+Filling:
+#Wait until all centrifuges Reagents count are above
+#MaxLoad ores to start stopping sequence
+lb r0 Centrifuge Reagents Minimum
+bgt r0 MaxLoad Stopcentri
+j Filling
+
+Stopcentri:
+#Stops All machinery
+sb Centrifuge On 0
+sb Deepminer On 0
+sleep 40 #Wait for the centrifuge to reach 0rpm
+sb Centrifuge Open 1 #Open centrifuge inventory
+Emptying:
+#Wait until all centrifuges are empty
+lb r0 Centrifuge Reagents Maximum
+beqz r0 start #if they are restart all machinery
+j Emptying
