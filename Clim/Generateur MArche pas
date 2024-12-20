@@ -1,0 +1,13 @@
+alias Gen d0
+define BigBatt -1388288459
+Start:
+lb r0 BigBatt Charge Sum
+bltal r0 20000 GenOn
+bgtal r0 200000 GenOff
+j Start
+GenOn:
+s Gen On 1
+j ra
+GenOff:
+s Gen On 0
+j ra
