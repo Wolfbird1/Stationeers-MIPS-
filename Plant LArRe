@@ -1,0 +1,91 @@
+#List Of Pin Connection
+alias LARre d0
+#Defining harvest setting : 1 = True ; 0 = False
+define GetSeed 1
+define UseFertiliser 0
+#Renaming varriables
+alias CurrentTray r15
+alias CurrentPosition r14
+alias PlantState r13
+alias harvestLeft r12
+alias LARreChute r11
+#Definig Constants
+define LastPosition 13 #Put your own Number of Tray + Export + Seed + fertiliser
+define Depot 2
+define Seed 1
+define Fertiliser 0
+define Dock 3
+restart:
+sdse CurrentTray LARre
+add CurrentTray CurrentTray 2
+Cycle:
+add CurrentTray CurrentTray 1
+bgt CurrentTray LastPosition restart
+s LARre Setting CurrentTray
+jal WaitForMove
+beq GetSeed 1 GetStateSeeding
+beq GetSeed 0 GetStateMature
+j Cycle
+
+# Get the information needed before harvesting
+GetStateSeeding:
+ls r13 LARre 255 Seeding
+beq r13 1 HarvestTray
+j Cycle
+
+GetStateMature:
+ls PlantState LARre 255 Mature
+beq PlantState 1 HarvestTray
+j Cycle
+
+HarvestTray:
+s LARre Setting CurrentTray
+jal WaitForMove
+jal Collect
+ls harvestLeft LARre 255 Quantity
+
+DropAll:
+s LARre Setting Depot
+jal WaitForMove
+jal Drop
+bnez harvestLeft HarvestTray
+
+PlantNew:
+beqal UseFertiliser 1 UseFert
+s LARre Setting Seed
+jal WaitForMove
+s LARre Setting CurrentTray
+jal WaitForMove
+s LARre Activate 1
+yield
+s LARre Activate 0
+j Cycle
+
+UseFert:
+define r0 ra
+s LARre Setting Fertiliser
+jal WaitForMove
+s LARre Activate 1
+yield
+s LARre Activate 0
+s LARre Setting CurrentTray
+jal WaitForMove
+s LARre Activate 1
+yield
+s LARre Activate 0
+j r0
+
+WaitForMove:
+s db Setting CurrentTray
+l CurrentPosition LARre PositionX
+beq CurrentTray CurrentPosition ra
+j WaitForMove
+#Two names for the same fonction
+Collect:
+Drop:
+s LARre Activate 1
+yield
+s LARre Activate 0
+ls LARreChute LARre 1 Occupied
+bnez LARreChute Drop
+j ra
