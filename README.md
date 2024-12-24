@@ -1,3 +1,6 @@
+Ip Serveur Depuis PAPA : 192.168.1.39:27016 
+Code : jeje
+
 Pages utile:
 
 https://stationeers-wiki.com/MIPS
