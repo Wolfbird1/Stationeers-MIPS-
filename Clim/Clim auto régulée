@@ -1,12 +1,16 @@
-alias db Clim
-alias d0 Heat
-alias d1 Van
+alias clim db Clim
+alias Heat d0
+alias Van 
+define TB -12348429712
 Start:
 l r0 Clim Setting
 l r1 Clim TemperatureInput
 bltal r1 r0 StartChaud
 bgtal r1 r0 StartFroid
 beqal r1 r0 StopClim
+l r5 Cilm PressureInput
+bgtal r5 100 StopTB
+j Start
 StopClim:
 s Clim Mode 0
 s Heat On 0
@@ -29,5 +33,19 @@ j StopH
 StartFroid:
 s Heat On 0
 s Van Open 1
+l r2 Clim TemperatureOutput2
+blt r2 214 StopCold
+bgt r2 375 StartCold
+StopC:
 s Clim Mode 1
+j ra
+StartCold:
+s Van On 1
+j StopC
+StopCold:
+s Van On 0
+j StopC
+
+StopTB
+sb TB On 0
 j ra
