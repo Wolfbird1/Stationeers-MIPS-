@@ -1,0 +1,33 @@
+alias db Clim
+alias d0 Heat
+alias d1 Van
+Start:
+l r0 Clim Setting
+l r1 Clim TemperatureInput
+bltal r1 r0 StartChaud
+bgtal r1 r0 StartFroid
+beqal r1 r0 StopClim
+StopClim:
+s Clim Mode 0
+s Heat On 0
+s Van Open 0
+j ra
+StartChaud:
+s Van Open 0
+l r2 Clim TemperatureOutput2
+blt r2 330 StartHeat
+bgt r2 375 StopHeat
+StopH:
+s Clim Mode 1
+j ra
+StartHeat:
+s Heat On 1
+j StopH
+StopHeat:
+s Heat On 0
+j StopH
+StartFroid:
+s Heat On 0
+s Van Open 1
+s Clim Mode 1
+j ra
